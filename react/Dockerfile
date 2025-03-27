@@ -50,7 +50,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
     npm install -g npm@latest && \
     npm install -g tree-sitter-cli && \
     npm install -g neovim && \
-    npm install -g @mermaid-js/mermaid-cli
+    npm install -g @mermaid-js/mermaid-cli && \
+    npm install -g prettier
 
 # Download and install Neovim
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
