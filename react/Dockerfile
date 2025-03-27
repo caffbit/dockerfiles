@@ -15,6 +15,7 @@ ENV TZ=${TZ}
 # Install base system packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    openssh-client \
     git \
     curl \
     wget \
