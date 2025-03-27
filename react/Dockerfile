@@ -4,7 +4,7 @@ FROM ubuntu:24.04
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Asia/Taipei
 ARG NODE_VERSION=20
-ARG NVIM_VERSION=0.10.4
+ARG NVIM_VERSION=0.11.0
 ARG TARGETARCH
 
 # Set environment variables
@@ -95,6 +95,6 @@ CMD ["bash"]
 LABEL description="Optimized Neovim ${NVIM_VERSION} with Node.js ${NODE_VERSION} and LazyVim"
 
 # Use:
-# - docker build -t nvim-node:0.10.4-node20 .
-# - docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps nvim-node:0.10.4-node20 tail -f /dev/null
+# - docker build -t nvim-node:0.11.0-node20 .
+# - docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps nvim-node:0.11.0-node20 tail -f /dev/null
 # - docker exec -it <name> bash
