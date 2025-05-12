@@ -49,10 +49,12 @@ RUN apt-get update && \
 
 # Install eza-community (modern ls replacement)
 RUN mkdir -p /etc/apt/keyrings && \
-    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/eza.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/eza.list && \
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list && \
+    chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list && \
     apt-get update && \
-    apt-get install -y eza
+    apt-get install -y eza && \
+    eza --version
 
 # Install Tmux Plugin Manager (TPM)
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -93,6 +95,13 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 # Install My personal dotfiles 
 RUN git clone https://github.com/caffbit/dotfiles.git ~/.config && \
     rm -rf ~/.config/nvim/.git
+
+# Setup shell aliases
+RUN echo 'alias ls="eza --icons=auto"' >> /root/.bashrc && \
+    echo 'alias ll="eza -l --icons=auto"' >> /root/.bashrc && \
+    echo 'alias la="eza -la --icons=auto"' >> /root/.bashrc && \
+    echo 'alias lt="eza --tree --icons=auto"' >> /root/.bashrc && \
+    echo 'alias lg="eza --long --git --icons=auto"' >> /root/.bashrc
 
 # Clean up unnecessary files to reduce image size
 RUN apt-get clean && \
