@@ -59,6 +59,9 @@ RUN mkdir -p /etc/apt/keyrings && \
 # Install zoxide (better cd)
 RUN curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
+# Set up zsh path
+RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /root/.zshenv
+
 # Install Tmux Plugin Manager (TPM)
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
@@ -98,17 +101,19 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 # Download and install tOh-My-Zsh
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-# Download Pure theme
+# Download and install Pure theme
 RUN mkdir -p ~/.zsh
 RUN git clone https://github.com/sindresorhus/pure.git ~/.zsh/pure
+RUN mkdir -p /usr/local/share/zsh/site-functions
+RUN ln -s ~/.zsh/pure/pure.zsh /usr/local/share/zsh/site-functions/prompt_pure_setup
+RUN ln -s ~/.zsh/pure/async.zsh /usr/local/share/zsh/site-functions/async
 
 # Download zsh-autosuggestions 和 zsh-syntax-highlighting 插件
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 # Install My personal dotfiles 
-RUN git clone https://github.com/caffbit/dotfiles.git ~/.config && \
-    rm -rf ~/.config/nvim/.git
+RUN git clone https://github.com/caffbit/dotfiles.git ~/.config
 
 # Link the Ubuntu-specific zshrc from dotfiles to ~/.zshrc
 RUN ln -sf ~/.config/zsh/ubuntu.zshrc ~/.zshrc
