@@ -42,7 +42,8 @@ RUN apt-get update && \
     xz-utils \
     gawk \
     make \
-    gpg && \
+    gpg \
+    zsh && \
     ln -s $(which fdfind) /usr/local/bin/fd && \
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
     locale-gen
@@ -53,8 +54,10 @@ RUN mkdir -p /etc/apt/keyrings && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list && \
     chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list && \
     apt-get update && \
-    apt-get install -y eza && \
-    eza --version
+    apt-get install -y eza
+
+# Install zoxide (better cd)
+RUN curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
 # Install Tmux Plugin Manager (TPM)
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -92,16 +95,26 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     mv lazygit /usr/local/bin/ && \
     rm lazygit.tar.gz
 
+# Download and install tOh-My-Zsh
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Download Pure theme
+RUN mkdir -p ~/.zsh
+RUN git clone https://github.com/sindresorhus/pure.git ~/.zsh/pure
+
+# Download zsh-autosuggestions 和 zsh-syntax-highlighting 插件
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
 # Install My personal dotfiles 
 RUN git clone https://github.com/caffbit/dotfiles.git ~/.config && \
     rm -rf ~/.config/nvim/.git
 
-# Setup shell aliases
-RUN echo 'alias ls="eza --icons=auto"' >> /root/.bashrc && \
-    echo 'alias ll="eza -l --icons=auto"' >> /root/.bashrc && \
-    echo 'alias la="eza -la --icons=auto"' >> /root/.bashrc && \
-    echo 'alias lt="eza --tree --icons=auto"' >> /root/.bashrc && \
-    echo 'alias lg="eza --long --git --icons=auto"' >> /root/.bashrc
+# Link the Ubuntu-specific zshrc from dotfiles to ~/.zshrc
+RUN ln -sf ~/.config/zsh/ubuntu.zshrc ~/.zshrc
+
+# Default shell
+RUN chsh -s /bin/zsh
 
 # Clean up unnecessary files to reduce image size
 RUN apt-get clean && \
@@ -109,13 +122,12 @@ RUN apt-get clean && \
     rm -rf /tmp/* && \
     rm -rf ~/.cache
 
-# Set default command
-CMD ["bash"]
+CMD ["zsh"]
 
 # Add metadata
-LABEL description="Optimized Neovim ${NVIM_VERSION} with Node.js ${NODE_VERSION}"
+LABEL description="Optimized Neovim ${NVIM_VERSION} with Node.js ${NODE_VERSION} and zsh"
 
 # Use:
-# - docker build -t nvim-node:0.11.1-node22 .
-# - docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps nvim-node:0.11.1-node22 tail -f /dev/null
-# - docker exec -it <name> bash
+# - docker build -t nvim-node:0.11.1-node22-zsh .
+# - docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps nvim-node:0.11.1-node22-zsh tail -f /dev/null
+# - docker exec -it <name> zsh
