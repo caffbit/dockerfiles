@@ -3,8 +3,8 @@ FROM ubuntu:24.04
 # Set build arguments
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Asia/Taipei
-ARG NODE_VERSION=20
-ARG NVIM_VERSION=0.11.0
+ARG NODE_VERSION=22
+ARG NVIM_VERSION=0.11.1
 ARG TARGETARCH
 
 # Set environment variables
@@ -17,6 +17,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     openssh-client \
     git \
+    tmux \
     curl \
     wget \
     tar \
@@ -24,7 +25,6 @@ RUN apt-get update && \
     gcc \
     fd-find \
     ripgrep \
-    xclip \
     python3 \
     python3-pip \
     python3-pynvim \
@@ -37,12 +37,25 @@ RUN apt-get update && \
     locales \
     imagemagick \
     ghostscript \
-    fish \
     sqlite3 \
-    libsqlite3-dev && \
+    libsqlite3-dev \
+    xz-utils \
+    gawk \
+    make \
+    gpg && \
     ln -s $(which fdfind) /usr/local/bin/fd && \
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
     locale-gen
+
+# Install eza-community (modern ls replacement)
+RUN mkdir -p /etc/apt/keyrings && \
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/eza.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/eza.list && \
+    apt-get update && \
+    apt-get install -y eza
+
+# Install Tmux Plugin Manager (TPM)
+RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 # Install Node.js and related tools
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
@@ -50,9 +63,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm@latest && \
     npm install -g tree-sitter-cli && \
-    npm install -g neovim && \
-    npm install -g @mermaid-js/mermaid-cli && \
-    npm install -g prettier
+    npm install -g neovim
 
 # Download and install Neovim
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -79,8 +90,8 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     mv lazygit /usr/local/bin/ && \
     rm lazygit.tar.gz
 
-# Install LazyVim
-RUN git clone https://github.com/LazyVim/starter ~/.config/nvim && \
+# Install My personal dotfiles 
+RUN git clone https://github.com/caffbit/dotfiles.git ~/.config && \
     rm -rf ~/.config/nvim/.git
 
 # Clean up unnecessary files to reduce image size
@@ -93,9 +104,9 @@ RUN apt-get clean && \
 CMD ["bash"]
 
 # Add metadata
-LABEL description="Optimized Neovim ${NVIM_VERSION} with Node.js ${NODE_VERSION} and LazyVim"
+LABEL description="Optimized Neovim ${NVIM_VERSION} with Node.js ${NODE_VERSION}"
 
 # Use:
-# - docker build -t nvim-node:0.11.0-node20 .
-# - docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps nvim-node:0.11.0-node20 tail -f /dev/null
+# - docker build -t nvim-node:0.11.1-node22 .
+# - docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps nvim-node:0.11.1-node22 tail -f /dev/null
 # - docker exec -it <name> bash
