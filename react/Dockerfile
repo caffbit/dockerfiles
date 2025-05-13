@@ -133,6 +133,6 @@ CMD ["zsh"]
 LABEL description="Optimized Neovim ${NVIM_VERSION} with Node.js ${NODE_VERSION} and zsh"
 
 # Use:
-# - docker build -t nvim-node:0.11.1-node22-zsh .
-# - docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps nvim-node:0.11.1-node22-zsh tail -f /dev/null
+# - docker build -t nvim-node:0.11.1-node22 .
+# - docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps nvim-node:0.11.1-node22 tail -f /dev/null
 # - docker exec -it <name> zsh
