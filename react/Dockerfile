@@ -22,14 +22,14 @@ RUN apt-get update && \
 
 # Install shell and terminal utilities
 RUN apt-get install -y --no-install-recommends \
-    tmux zsh ripgrep fzf fd-find xclip && \
+    tmux zsh ripgrep fzf fd-find && \
     ln -s $(which fdfind) /usr/local/bin/fd
 
 # Install Node.js and related tools
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
     apt-get update && \
     apt-get install -y nodejs && \
-    npm install -g npm@latest tree-sitter-cli neovim
+    npm install -g neovim tree-sitter-cli
 
 # Install Neovim
 RUN NVIM_ARCH="$([ "$TARGETARCH" = "arm64" ] && echo "arm64" || echo "x86_64")" && \
