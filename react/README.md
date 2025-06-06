@@ -15,7 +15,7 @@
 
 ```
 # 為您當前的架構構建
-docker build --platform linux/arm64 -t nvim-node:{version}-node{version} .
+docker build --platform linux/arm64 -t react .
 ```
 
 多架構構建
@@ -25,7 +25,7 @@ docker build --platform linux/arm64 -t nvim-node:{version}-node{version} .
 docker buildx create --name mybuilder --use
 # 構建並推送多架構映像
 docker buildx build --platform linux/amd64,linux/arm64 \
-  -t your-registry/nvim-node:{version}-node{version} \
+  -t your-registry/dotfiles:react \
   --push .
 ```
 
@@ -35,7 +35,7 @@ docker buildx build --platform linux/amd64,linux/arm64 \
 
 ```bash
 # 建立並啟動具有持久磁碟區的容器
-docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps nvim-node:{version}-node{version} tail -f /dev/null
+docker run -d --name <name> [-p <host_port>:<container_port>] -v application:/apps react tail -f /dev/null
 
 # 進入容器
 docker exec -it <name> bash
