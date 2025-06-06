@@ -29,7 +29,7 @@ RUN apt-get install -y --no-install-recommends \
 
 # Install shell and terminal utilities
 RUN apt-get install -y --no-install-recommends \
-    zsh ripgrep fd-find && \
+    zsh ripgrep fzf fd-find && \
     ln -s $(which fdfind) /usr/local/bin/fd
 
 # Install Node.js and related tools
@@ -81,9 +81,6 @@ RUN mkdir -p /etc/apt/keyrings && \
     chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list && \
     apt-get update && \
     apt-get install -y eza
-
-# Set up zsh path
-RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /root/.zshenv
 
 # Install Oh-My-Zsh
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
