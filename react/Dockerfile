@@ -1,10 +1,10 @@
-FROM ubuntu:24.04
+FROM ubuntu:latest
 
 # Set build arguments
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=Asia/Taipei
 ARG NODE_VERSION=22
-ARG NVIM_VERSION=0.11.1
+ARG NVIM_VERSION=0.11.2
 ARG TARGETARCH
 
 # Set environment variables
@@ -16,13 +16,20 @@ ENV LANG=en_US.UTF-8 \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     wget curl git gpg ca-certificates openssh-client \
-    locales build-essential unzip luarocks && \
+    locales build-essential unzip luarocks sqlite3 libsqlite3-dev && \
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
     locale-gen
 
+# Install Python and Aider dependencies
+RUN apt-get install -y --no-install-recommends \
+    python3 python3-pip python3-venv \
+    # Aider core dependencies
+    libportaudio2 pandoc \
+    && ln -s /usr/bin/python3 /usr/bin/python
+
 # Install shell and terminal utilities
 RUN apt-get install -y --no-install-recommends \
-    tmux zsh ripgrep fzf fd-find && \
+    zsh ripgrep fd-find && \
     ln -s $(which fdfind) /usr/local/bin/fd
 
 # Install Node.js and related tools
@@ -48,6 +55,22 @@ RUN LG_ARCH="$([ "$TARGETARCH" = "arm64" ] && echo "arm64" || echo "x86_64")" &&
     mv lazygit /usr/local/bin/ && \
     rm lazygit.tar.gz
 
+# Install mods (CLI for AI models)
+RUN mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://repo.charm.sh/apt/gpg.key | gpg --dearmor -o /etc/apt/keyrings/charm.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | tee /etc/apt/sources.list.d/charm.list && \
+    apt-get update && \
+    apt-get install -y mods
+
+# Install Aider AI with full browser support
+RUN python3 -m pip install --no-cache-dir aider-chat[help,browser,playwright] --break-system-packages
+
+# Install Playwright browsers (chromium only, following official)
+RUN python3 -m playwright install --with-deps chromium
+
+# Verify Aider and Playwright installation
+RUN aider --version && python3 -m playwright --version
+
 # Install zoxide (better cd)
 RUN curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
@@ -61,9 +84,6 @@ RUN mkdir -p /etc/apt/keyrings && \
 
 # Set up zsh path
 RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /root/.zshenv
-
-# Install Tmux Plugin Manager (TPM)
-RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 # Install Oh-My-Zsh
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -80,10 +100,16 @@ RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.
     git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 # Clone personal dotfiles
-RUN git clone --recursive https://github.com/caffbit/dotfiles.git ~/.config
+RUN git clone https://github.com/caffbit/dotfiles.git ~/.config
+
+# Set up gen-commit-lazygit script
+RUN mkdir -p ~/.local/bin && \
+    cp ~/.config/lazygit/gen-commit-lazygit ~/.local/bin/gen-commit-lazygit && \
+    chmod +x ~/.local/bin/gen-commit-lazygit
 
 # Link configuration files
 RUN ln -sf ~/.config/zsh/ubuntu.zshrc ~/.zshrc
+RUN ln -sf ~/.config/aider/.aider.conf.yml ~/.aider.conf.yaml
 
 # Default shell
 RUN chsh -s /bin/zsh
@@ -93,6 +119,6 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/.cache
 
 # Add metadata
-LABEL description="Optimized Neovim ${NVIM_VERSION} with Node.js ${NODE_VERSION}"
+LABEL description="Frontend dev environment with Neovim, Node.js, and Aider AI"
 
 CMD ["zsh"]
