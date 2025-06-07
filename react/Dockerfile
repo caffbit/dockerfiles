@@ -106,7 +106,7 @@ RUN mkdir -p ~/.local/bin && \
 
 # Link configuration files
 RUN ln -sf ~/.config/zsh/ubuntu.zshrc ~/.zshrc
-RUN ln -sf ~/.config/aider/.aider.conf.yml ~/.aider.conf.yaml
+RUN ln -sf ~/.config/aider/.aider.conf.yml ~/.aider.conf.yml
 
 # Default shell
 RUN chsh -s /bin/zsh
