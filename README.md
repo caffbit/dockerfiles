@@ -21,7 +21,7 @@ docker buildx build --platform linux/amd64,linux/arm64
 
 ### Run Container
 ```bash
-# Create and start container with persistent volume
+# Create and start container
 docker run -d --name <name> [-p <host_port>:<container_port>] <directory> tail -f /dev/null
 
 # Enter container
