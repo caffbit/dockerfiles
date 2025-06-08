@@ -10,13 +10,26 @@ There are some directories in this repository. Each directory has a Dockerfile, 
 
 ### Build Image
 ```bash
-# Single architecture
-docker build --platform linux/arm64 -t <directory> .
+# Local build (current architecture)
+docker build -t <directory> .
 
-# Multi-architecture with Buildx
-docker buildx build --platform linux/amd64,linux/arm64 
- -t your-registry/dotfiles:<directory> 
- --push .
+# Docker Hub build (current architecture)
+docker buildx build -t your-registry/dotfiles:<directory> --push .
+
+# Check current architecture
+docker image inspect <directory> --format='{{.Architecture}}'
+
+# Multi-architecture workflow (when needed)
+# 1. Build for different architecture with temporary tag
+docker buildx build -t your-registry/dotfiles:<directory>-<arch> --push .
+
+# 2. Create manifest to combine architectures
+docker manifest create your-registry/dotfiles:<directory> 
+  --amend your-registry/dotfiles:<directory> 
+  your-registry/dotfiles:<directory>-<arch>
+
+# 3. Push combined manifest
+docker manifest push your-registry/dotfiles:<directory>
 ```
 
 ### Run Container
@@ -29,7 +42,6 @@ docker exec -it <name> bash
 ```
 
 ### SSH Setup (in container)
-
 ```bash
 # Setup SSH directory
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
@@ -50,3 +62,4 @@ ssh -T git@github.com
 - `<name>`: Container name (e.g., my-project)
 - `<host_port>`: Host port (optional, e.g., 5173)
 - `<container_port>`: Container port (optional, e.g., 5173)
+- `<arch>`: Architecture (e.g., amd64, arm64)
