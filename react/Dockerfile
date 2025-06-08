@@ -97,7 +97,7 @@ RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.
     git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 # Clone personal dotfiles
-RUN git clone https://github.com/caffbit/dotfiles.git ~/.config
+RUN git clone -b react https://github.com/caffbit/dotfiles.git ~/.config
 
 # Set up gen-commit-lazygit script
 RUN mkdir -p ~/.local/bin && \
@@ -116,6 +116,9 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/.cache
 
 # Add metadata
-LABEL description="Frontend dev environment with Neovim, Node.js, and Aider AI"
+LABEL description="React development environment with Neovim, Node.js, and Aider AI"
+
+# Expose common frontend development ports
+EXPOSE 3000 3001 4000 4200 5173 5174 8080 8081 9000
 
 CMD ["zsh"]
