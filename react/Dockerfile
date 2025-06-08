@@ -118,7 +118,4 @@ RUN apt-get clean && \
 # Add metadata
 LABEL description="React development environment with Neovim, Node.js, and Aider AI"
 
-# Expose common frontend development ports
-EXPOSE 3000 3001 4000 4200 5173 5174 8080 8081 9000
-
 CMD ["zsh"]
