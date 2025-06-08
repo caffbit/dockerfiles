@@ -8,6 +8,15 @@ There are some directories in this repository. Each directory has a Dockerfile, 
 
 ## Usage
 
+### Pull from Docker Hub
+```bash
+# Pull multi-architecture image (automatically selects your architecture)
+docker pull your-registry/dotfiles:<directory>
+
+# Pull specific architecture (if needed)
+docker pull --platform linux/<arch> your-registry/dotfiles:<directory>
+```
+
 ### Build Image
 ```bash
 # Local build (current architecture)
@@ -39,6 +48,12 @@ docker run -d --name <name> [-p <host_port>:<container_port>] <directory> tail -
 
 # Enter container
 docker exec -it <name> bash
+
+# Add ports to existing container (preserves data)
+docker commit <name> <name>-backup
+docker stop <name> && docker rm <name>
+docker run -d --name <name> -p <host_port>:<container_port> <name>-backup tail -f /dev/null
+docker rmi <name>-backup  # Clean up backup image
 ```
 
 ### SSH Setup (in container)
