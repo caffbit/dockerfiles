@@ -53,7 +53,6 @@ docker exec -it <name> bash
 docker commit <name> <name>-backup
 docker stop <name> && docker rm <name>
 docker run -d --name <name> -p <host_port>:<container_port> <name>-backup tail -f /dev/null
-docker rmi <name>-backup  # Clean up backup image
 ```
 
 ### SSH Setup (in container)
