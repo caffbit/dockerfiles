@@ -29,7 +29,7 @@ RUN apt-get install -y --no-install-recommends \
 
 # Install shell and terminal utilities
 RUN apt-get install -y --no-install-recommends \
-    zsh ripgrep fzf fd-find && \
+    zsh ripgrep fzf fd-find translate-shell && \
     ln -s $(which fdfind) /usr/local/bin/fd
 
 # Install Node.js and related tools
@@ -116,6 +116,6 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/.cache
 
 # Add metadata
-LABEL description="React development environment with Neovim, Node.js, and Aider AI"
+LABEL description="React development environment with Neovim, Node.js, Aider AI"
 
 CMD ["zsh"]
