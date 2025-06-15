@@ -97,7 +97,7 @@ RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.
     git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 # Clone personal dotfiles
-RUN git clone -b react https://github.com/caffbit/dotfiles.git ~/.config
+RUN git clone --recurse-submodules -b react https://github.com/caffbit/dotfiles.git ~/.config
 
 # Set up gen-commit-lazygit script
 RUN mkdir -p ~/.local/bin && \
