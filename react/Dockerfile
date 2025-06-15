@@ -16,7 +16,7 @@ ENV LANG=en_US.UTF-8 \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     wget curl git gpg ca-certificates openssh-client \
-    locales build-essential unzip luarocks sqlite3 libsqlite3-dev && \
+    locales make gcc unzip luarocks && \
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
     locale-gen
 
@@ -29,7 +29,7 @@ RUN apt-get install -y --no-install-recommends \
 
 # Install shell and terminal utilities
 RUN apt-get install -y --no-install-recommends \
-    zsh ripgrep fzf fd-find translate-shell && \
+    zsh ripgrep fd-find translate-shell && \
     ln -s $(which fdfind) /usr/local/bin/fd
 
 # Install Node.js and related tools

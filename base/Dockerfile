@@ -12,17 +12,17 @@ ENV LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
     TZ=${TZ}
 
-# Install base system packages and development tools
+# Install base system packages and development tools first
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     wget curl git gpg ca-certificates openssh-client \
-    locales build-essential unzip && \
+    locales make gcc unzip luarocks && \
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
     locale-gen
 
 # Install shell and terminal utilities
 RUN apt-get install -y --no-install-recommends \
-    zsh ripgrep fzf fd-find && \
+    zsh ripgrep fd-find && \
     ln -s $(which fdfind) /usr/local/bin/fd
 
 # Install Node.js and Neovim dependencies
